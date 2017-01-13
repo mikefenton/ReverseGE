@@ -714,7 +714,7 @@ def check_snippets_for_solution():
     print("\nTarget:         ", params['TARGET'])
     if spaces:
         print("Largest snippet:", spaces, largest_snippet)
-        print("Snippet key:    ", largest_snippet[1])
+        print("Snippet key:    ", biggest_snippet[1])
     else:
         print("Largest snippet:", largest_snippet)
 
