@@ -5,10 +5,10 @@ from os import path
 params = {
 
         # Set grammar file
-        'GRAMMAR_FILE': "Vladislavleva4.bnf",
+        'GRAMMAR_FILE': "letter.bnf",
 
         # Specify target for target problems
-        'TARGET': "plog(np.sin(np.sin(psqrt(x[3]+np.exp(np.tanh(np.sin(np.exp(x[4]))))*plog(pdiv(x[1]*pdiv(x[3],plog(x[1]))-psqrt(np.sin(np.sin(np.exp(70.06)))),plog(x[1])*np.tanh(psqrt(x[4])*plog(np.tanh(x[0])))*39.80-x[1]+plog(np.sin(np.tanh(x[0])*x[0]))))))))"
+        'TARGET': "Hello world!"
 
 }
 

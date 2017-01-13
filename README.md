@@ -81,4 +81,4 @@ implies a many-to-one mapping).
 There are a number of flags that can be used for passing values via the
 command-line. To see a full list of these just run the following:
 
-    $ python load_solution.py --help
+    $ python ReverseGE.py --help
