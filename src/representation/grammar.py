@@ -229,17 +229,17 @@ class Grammar(object):
             
             # Find NTs which have production choices which can concatenate_multi_NT
             # two NTs.
-            concat = [choice for choice in self.rules[rule]['choices'] if
-                      choice['NT_kids'] and len([sym for sym in choice[
-                      'choice'] if sym['type'] == "NT"]) > 1]
+            multi_concat = [choice for choice in self.rules[rule]['choices'] if
+                            choice['NT_kids'] and len([sym for sym in choice[
+                            'choice'] if sym['type'] == "NT"]) > 1]
             
-            climb = [choice for choice in self.rules[rule]['choices'] if
-                      choice['NT_kids'] and len([sym for sym in choice[
-                      'choice'] if sym['type'] == "NT"]) == 1]
+            single_concat = [choice for choice in self.rules[rule]['choices'] if
+                             choice['NT_kids'] and len([sym for sym in choice[
+                            'choice'] if sym['type'] == "NT"]) == 1]
             
-            if concat:
+            if multi_concat:
                 # We can concatenate_multi_NT NTs.
-                for choice in concat:
+                for choice in multi_concat:
                                         
                     symbols = [sym['symbol'] for sym in choice['choice'] if
                                sym['type'] == "NT"]
@@ -260,9 +260,9 @@ class Grammar(object):
                             if conc not in self.concat_NTs[sym]:
                                 self.concat_NTs[sym].append(conc)
 
-            if climb:
+            if single_concat:
                 # We can use these choices to generate parents for single NTs.
-                for choice in climb:
+                for choice in single_concat:
                     
                     symbols = [sym['symbol'] for sym in choice['choice']]
                     

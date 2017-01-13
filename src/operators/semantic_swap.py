@@ -69,7 +69,7 @@ def concatenate_single_NT():
 
     # Sort snippets keys.
     sorted_keys = sorted(trackers.snippets.keys())
-
+    
     for snippet in sorted_keys:
 
         # Get current root node.
@@ -114,25 +114,24 @@ def concatenate_single_NT():
 
                     # Find the index of the snippet root in the current climb
                     # production choice.
-                    loc = opt[2].index(NT)
+                    loc = NTs.index(NT)
 
                     alt_cs = list(range(len(NTs)))
                     alt_cs.remove(loc)
 
-                    # Initialise a dictionary in which to store snippets
-                    # that can be concatenated.
-                    ranges = {str(i): None for i in alt_cs}
+                    # Initialise a list of children to be concatenated.
+                    children = [[] for _ in range(len(NTs))]
 
-                    # Set original snippet into ranges dictionary.
-                    ranges[str(loc)] = [snippet,
-                                        trackers.snippets[snippet],
-                                        new_idx]
+                    # Set original snippet into children.
+                    children[loc] = [snippet, trackers.snippets[snippet]]
 
                     # Get the section of the target string to match.
                     if loc != 0:
+                        # There is a T before the NT.
                         new_idx[0] -= len(NTs[0])
 
-                    if loc != len(NTs):
+                    if loc != len(NTs) - 1:
+                        # There is a T after the NT.
                         new_idx[1] += len(NTs[-1])
 
                     if new_idx[0] < 0 or new_idx[1] > len(target):
@@ -164,11 +163,10 @@ def concatenate_single_NT():
                                 child = tree.Tree(expr, None)
                                 
                                 # Add to ranges dictionary.
-                                ranges[str(i)] = [None, child]
+                                children[i] = [None, child]
 
                             # Create list of children.
-                            children = [ranges[str(i)][1] for i in
-                                        sorted(ranges.keys())]
+                            children = [child[1] for child in children]
 
                             # We can generate a new snippet by concatenating
                             # two existing snippets.
@@ -710,9 +708,15 @@ def check_snippets_for_solution():
             biggest_snippet = [length, snippet]
 
     largest_snippet = get_output(trackers.snippets[biggest_snippet[1]])
+    largest_indexes = get_num_from_str(biggest_snippet[1])
+    spaces = "".join([" " for _ in range(largest_indexes[0] - 1)])
 
     print("\nTarget:         ", params['TARGET'])
-    print("Largest snippet:", largest_snippet)
+    if spaces:
+        print("Largest snippet:", spaces, largest_snippet)
+        print("Snippet key:    ", largest_snippet[1])
+    else:
+        print("Largest snippet:", largest_snippet)
 
     if largest_snippet == params['TARGET']:
         # We have a perfect match
