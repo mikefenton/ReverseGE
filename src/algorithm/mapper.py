@@ -58,8 +58,7 @@ def map_tree_from_genome(genome):
     """
 
     # Initialise an instance of the tree class
-    tree = Tree(str(params['BNF_GRAMMAR'].start_rule["symbol"]),
-                None, depth_limit=len(genome))
+    tree = Tree(str(params['BNF_GRAMMAR'].start_rule["symbol"]), None)
 
     # Map tree from the given genome
     output, used_codons, nodes, depth, max_depth, invalid = \

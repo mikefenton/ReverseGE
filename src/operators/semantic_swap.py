@@ -21,12 +21,12 @@ def combine_snippets():
     # Find the number of snippets at T.
     original_snippets = len(trackers.snippets)
 
-    # Perform first pass of concatenation.
-    concatenate()
-
     # Perform first pass of climbing up the tree, get the number of snippets at
     # T+1.
-    updated_snippets = climb_up_tree()
+    concatenate_single_NT()
+    
+    # Perform first pass of concatenation.
+    updated_snippets = concatenate_multi_NT()
 
     # Initialise counter for concatenation interations.
     no_passes = 1
@@ -40,11 +40,11 @@ def combine_snippets():
         # Save old T+1
         pre_updated_snippets = copy(updated_snippets)
 
-        # Perform concatenation.
-        concatenate()
-
         # Climb up the tree, get the number of snippets at new T+1.
-        updated_snippets = climb_up_tree()
+        concatenate_single_NT()
+        
+        # Perform concatenation.
+        updated_snippets = concatenate_multi_NT()
 
         # Set new T as old T+1
         original_snippets = pre_updated_snippets
@@ -56,7 +56,7 @@ def combine_snippets():
               original_snippets, "\tNew:", updated_snippets)
 
 
-def climb_up_tree():
+def concatenate_single_NT():
     """
     Look at each snippet in the snippets repository and see if a parent can
     be created.
@@ -80,7 +80,7 @@ def climb_up_tree():
 
         # Find if the snippet root (NT) exists anywhere in the climb NTs.
         if NT in climb:
-
+            
             for opt in climb[NT]:
                 # Now we're searching for a specific subset of keys in the
                 # snippets dictionary.
@@ -174,10 +174,8 @@ def climb_up_tree():
                             # two existing snippets.
                             create_snippet(opt[1], children, opt[0], new_key)
 
-    return len(trackers.snippets)
 
-
-def concatenate():
+def concatenate_multi_NT():
     """
     Iterates through all snippets in the snippets dictionary and
     concatenates snippets to make larger snippets.
@@ -228,14 +226,14 @@ def concatenate():
 
                     elif start == 0 and loc != 0:
                         # The current snippet is at the start of the target
-                        # string, but we are trying to concatenate it with
+                        # string, but we are trying to concatenate_multi_NT it with
                         # something before it.
                         break
 
                     elif end == len(params['TARGET']) and loc != \
                             NT_locs[-1]:
                         # The current snippet is at the end of the target
-                        # string, but we are trying to concatenate it with
+                        # string, but we are trying to concatenate_multi_NT it with
                         # something after it.
                         break
 
@@ -258,7 +256,7 @@ def concatenate():
                     children[loc] = [snippet, trackers.snippets[snippet]]
 
                     # Generate ordered list of alternating indexes of Ts
-                    # and NTs to concatenate with a given original NT.
+                    # and NTs to concatenate_multi_NT with a given original NT.
                     b = zip_longest(alt_cs[loc:], reversed(alt_cs[:loc]))
                     alt_cs = [x for x in list(sum(b, ())) if x is not None]
                     alt_cs.remove(loc)
@@ -271,7 +269,7 @@ def concatenate():
 
                         :param alt_cs: An ordered list of indexes of
                         potential Terminals or Non Terminals to
-                        concatenate.
+                        concatenate_multi_NT.
                         :param pre: The start index of the overall snippet
                         on the target string.
                         :param aft: The end index of the overall snippet on
@@ -571,13 +569,15 @@ def concatenate():
 
                         elif all([i != [] for i in children]):
                             # We have compiled a full set of potneital
-                            # children to concatenate. Generate a key and check
+                            # children to concatenate_multi_NT. Generate a key and check
                             # if it exists.
                             generate_concat_key_and_check(pre, aft, concat,
                                                           children)
 
                     # Check whether a concatenation can be performed.
                     check_concatenations(alt_cs, pre, aft, 0, children)
+
+    return len(trackers.snippets)
 
 
 def generate_concat_key_and_check(pre, aft, concat, children):
@@ -587,7 +587,7 @@ def generate_concat_key_and_check(pre, aft, concat, children):
 
     :param pre: The start index of the overall snippet on the target string.
     :param aft: The end index of the overall snippet on the target string.
-    :param concat: The information necessary to concatenate a list of snippets.
+    :param concat: The information necessary to concatenate_multi_NT a list of snippets.
     Includes the root NT that will form the new root node of the concatenated
     snippet.
     :param children: A dictionary containing the derivation trees of all
@@ -605,7 +605,7 @@ def generate_concat_key_and_check(pre, aft, concat, children):
     new_key = " ".join([str([pre, aft]), concat[1]])
 
     if new_key in trackers.snippets:
-        # No need to concatenate as a perfectly good
+        # No need to concatenate_multi_NT as a perfectly good
         # solution already exists.
         pass
 
@@ -632,7 +632,7 @@ def create_snippet(parent, children, choice, key):
     """
 
     # Initialise new instance of the tree class to act as new snippet.
-    new_tree = tree.Tree(parent, None, depth_limit=None)
+    new_tree = tree.Tree(parent, None)
 
     # Generate a codon to match the given production choice.
     new_tree.codon = generate_codon(parent, choice)

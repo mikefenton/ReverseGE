@@ -1,22 +1,15 @@
 from os import path
-from socket import gethostname
-
-hostname = gethostname().split('.')
-machine_name = hostname[0]
 
 
 """Algorithm parameters"""
 params = {
 
         # Set grammar file
-        'GRAMMAR_FILE': "Vladislavleva4.bnf",
+        'GRAMMAR_FILE': "regex.bnf",
 
         # Specify target for target problems
-        'TARGET': "plog(np.sin(np.sin(psqrt(x[3]+np.exp(np.tanh(np.sin(np.exp(x[4]))))*plog(pdiv(x[1]*pdiv(x[3],plog(x[1]))-psqrt(np.sin(np.sin(np.exp(70.06)))),plog(x[1])*np.tanh(psqrt(x[4])*plog(np.tanh(x[0])))*39.80-x[1]+plog(np.sin(np.tanh(x[0])*x[0]))))))))",
+        'TARGET': "\d.[9-n](\d.).(\w.).(\w.).(\d.).\w\d|([0-9a-fA-F]:?){12}"
 
-        # Set max sizes of individuals
-        'CODON_SIZE': 10000
-    
 }
 
 

@@ -36,21 +36,13 @@ def parse_cmd_args(arguments):
 
     # Initialise parser
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-        description="""Welcome to PonyGE - Help
+        description="""Welcome to ReverseGE - Help
         -------------------
-        The following are the available command line args
-        please see src /algorithm/parameters.py
-        for a more detailed explanation of each argument and possible
-        values:""")
-
-    # CODON SIZE
-    parser.add_argument('--codon_size', dest='CODON_SIZE', type=int,
-                        help='Sets the range from 0 to condon_size to be used '
-                             'in genome, requires int value')
+        The following are the available command line args:""")
 
     # GRAMMAR FILE
     parser.add_argument('--grammar_file', dest='GRAMMAR_FILE', type=str,
-                        help='Sets the grammar to be used, requires string')
+                        help='Sets the grammar to be used, requires string.')
     
     # TARGET
     parser.add_argument('--target', dest='TARGET', type=str,

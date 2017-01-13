@@ -1,5 +1,3 @@
-from random import randrange
-
 from algorithm.parameters import params
 from representation import individual
 
@@ -22,6 +20,7 @@ def check_ind(ind, target):
         print("\nError: Solution doesn't match genome mapping.\n")
         print("Solution:\t", ind.phenotype)
         print("Mapped:  \t", new_ind.phenotype)
+        print("Genome:  \t", ind.genome)
         quit()
     
     # Check the phenotype matches the target string.
@@ -166,9 +165,10 @@ def generate_codon(NT, choice):
     :return: A codon that will give that production choice.
     """
 
+    productions = params['BNF_GRAMMAR'].rules[NT]
+
     # Find the production choices from the given NT.
-    choices = [choice['choice'] for choice in params['BNF_GRAMMAR'].rules[NT][
-        'choices']]
+    choices = [choice['choice'] for choice in productions['choices']]
 
     # Find the index of the chosen production and set a matching codon based
     # on that index.
@@ -178,10 +178,11 @@ def generate_codon(NT, choice):
         print("Error: Specified choice", choice, "not a valid choice for "
                                                  "NT", NT)
         quit()
-
+    
+    codon_range = range(productions['no_choices'],
+                        params['CODON_SIZE'],
+                        productions['no_choices'])
+    codon = codon_range[0] + prod_index
+        
     # Generate a valid codon.
-    codon = randrange(len(choices),
-                      params['BNF_GRAMMAR'].codon_size,
-                      len(choices)) + prod_index
-
     return codon

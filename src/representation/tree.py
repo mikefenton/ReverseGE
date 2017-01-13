@@ -1,49 +1,19 @@
 class Tree:
 
-    def __init__(self, expr, parent, depth_limit=20):
+    def __init__(self, expr, parent):
         """
         Initialise an instance of the tree class.
         
         :param expr: A non-terminal from the params['BNF_GRAMMAR'].
         :param parent: The parent of the current node. None if node is tree
         root.
-        :param depth_limit: The maximum depth the tree can expand to.
         """
         
         self.parent = parent
         self.codon = None
-        self.depth_limit = depth_limit
         self.depth = 1
         self.root = expr
         self.children = []
-
-    def __str__(self):
-        """
-        Builds a string of the current tree.
-
-        :return: A string of the current tree.
-        """
-
-        # Initialise the output string.
-        result = "("
-
-        # Append the root of the current node to the output string.
-        result += str(self.root)
-
-        for child in self.children:
-            # Iterate across all children.
-
-            if len(child.children) > 0:
-                # Recurse through all children.
-                result += " " + str(child)
-
-            else:
-                # Child is a terminal, append root to string.
-                result += " " + str(child.root)
-
-        result += ")"
-
-        return result
 
     def get_tree_info(self, nt_keys, genome, output, invalid=False,
                       max_depth=0, nodes=0):
