@@ -714,11 +714,13 @@ def check_snippets_for_solution():
     print("\nTarget:         ", params['TARGET'])
     if spaces:
         print("Largest snippet:", spaces, largest_snippet)
-        print("Snippet key:    ", biggest_snippet[1])
     else:
         print("Largest snippet:", largest_snippet)
 
-    if largest_snippet == params['TARGET']:
+    if largest_snippet != params['TARGET']:
+        print("Snippet key:    ", biggest_snippet[1])
+
+    else:
         # We have a perfect match
 
         # Generate individual that represents the perfect solution.

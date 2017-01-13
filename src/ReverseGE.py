@@ -45,7 +45,7 @@ def assemble_solution():
          
         for idx in occurrances:
             # Check each occurrence of this terminal in the target string.
-            
+
             for NT in terms[T]:
                 
                 if any([[T] == i for i in [[sym['symbol'] for sym in
