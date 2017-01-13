@@ -711,7 +711,7 @@ def check_snippets_for_solution():
 
     largest_snippet = get_output(trackers.snippets[biggest_snippet[1]])
 
-    print("Target:         ", params['TARGET'])
+    print("\nTarget:         ", params['TARGET'])
     print("Largest snippet:", largest_snippet)
 
     if largest_snippet == params['TARGET']:

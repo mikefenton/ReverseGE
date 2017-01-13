@@ -172,17 +172,9 @@ def generate_codon(NT, choice):
 
     # Find the index of the chosen production and set a matching codon based
     # on that index.
-    try:
-        prod_index = choices.index(choice)
-    except ValueError:
-        print("Error: Specified choice", choice, "not a valid choice for "
-                                                 "NT", NT)
-        quit()
+    prod_index = choices.index(choice)
     
-    codon_range = range(productions['no_choices'],
-                        params['CODON_SIZE'],
-                        productions['no_choices'])
-    codon = codon_range[0] + prod_index
+    codon = productions['no_choices'] + prod_index
         
     # Generate a valid codon.
     return codon

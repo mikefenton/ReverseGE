@@ -10,7 +10,7 @@ from operators.semantic_swap import combine_snippets, \
     check_snippets_for_solution
 from representation.tree import Tree
 from utilities.representation.check_methods import generate_codon, \
-    check_ind
+    check_ind, get_output
 from utilities.stats import trackers
 
 
@@ -42,18 +42,18 @@ def assemble_solution():
                 index += len(T)
             else:
                 break
-        
+         
         for idx in occurrances:
             # Check each occurrence of this terminal in the target string.
-    
+            
             for NT in terms[T]:
-
+                
                 if any([[T] == i for i in [[sym['symbol'] for sym in
                                             choice['choice']] for choice in
                                            rules[NT]['choices']]]):
                     # Check if current T is the entire production choice of any
                     # particular rule.
-                    
+
                     # Generate a key for the snippets repository.
                     key = " ".join([str([idx, idx+len(T)]), NT])
                     
@@ -87,7 +87,7 @@ def assemble_solution():
 
     # Check snippets for full correct solution
     solution = check_snippets_for_solution()
-    
+        
     if solution:
         return solution
 

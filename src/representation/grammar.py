@@ -119,7 +119,8 @@ class Grammar(object):
                             if str(i) not in self.terminals:
                                 self.terminals[str(i)] = \
                                     [rule.group('rulename')]
-                            else:
+                            elif rule.group('rulename') not in \
+                                self.terminals[str(i)]:
                                 self.terminals[str(i)].append(
                                     rule.group('rulename'))
                             tmp_productions.append({"choice": tmp_production,
@@ -144,7 +145,8 @@ class Grammar(object):
                                 if terminalparts not in self.terminals:
                                     self.terminals[terminalparts] = \
                                         [rule.group('rulename')]
-                                else:
+                                elif rule.group('rulename') not in \
+                                    self.terminals[terminalparts]:
                                     self.terminals[terminalparts].append(
                                         rule.group('rulename'))
                                 terminalparts = ''
@@ -168,7 +170,8 @@ class Grammar(object):
                         if terminalparts not in self.terminals:
                             self.terminals[terminalparts] = \
                                 [rule.group('rulename')]
-                        else:
+                        elif rule.group('rulename') not in \
+                            self.terminals[terminalparts]:
                             self.terminals[terminalparts].append(
                                 rule.group('rulename'))
                     tmp_productions.append({"choice": tmp_production,

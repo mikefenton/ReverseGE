@@ -8,7 +8,7 @@ params = {
         'GRAMMAR_FILE': "regex.bnf",
 
         # Specify target for target problems
-        'TARGET': "\d.[9-n](\d.).(\w.).(\w.).(\d.).\w\d|([0-9a-fA-F]:?){12}"
+        'TARGET': "((2[0-5]|1[0-9]|[0-9])?[0-9]\.){3}((2[0-5]|1[0-9]|[0-9])?[0-9])"
 
 }
 
