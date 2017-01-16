@@ -72,6 +72,9 @@ def assemble_solution():
                     # Generate a codon for this choice.
                     parent.codon = generate_codon(NT, choice)
                     
+                    # Set the snippet key for the parent.
+                    parent.snippet = key
+                    
                     # Create child for terminal.
                     child = Tree(T, parent)
                     

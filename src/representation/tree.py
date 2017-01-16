@@ -14,6 +14,34 @@ class Tree:
         self.depth = 1
         self.root = expr
         self.children = []
+        self.snippet = None
+
+    def __copy__(self):
+        """
+        Creates a new unique copy of self.
+
+        :return: A new unique copy of self.
+        """
+    
+        # Copy current tree by initialising a new instance of the tree class.
+        tree_copy = Tree(self.root, self.parent)
+    
+        # Set node parameters.
+        tree_copy.codon, tree_copy.depth = self.codon, self.depth
+        
+        tree_copy.snippet = self.snippet
+    
+        for child in self.children:
+            # Recurse through all children.
+            new_child = child.__copy__()
+        
+            # Set the parent of the copied child as the copied parent.
+            new_child.parent = tree_copy
+        
+            # Append the copied child to the copied parent.
+            tree_copy.children.append(new_child)
+    
+        return tree_copy
 
     def get_tree_info(self, nt_keys, genome, output, invalid=False,
                       max_depth=0, nodes=0):

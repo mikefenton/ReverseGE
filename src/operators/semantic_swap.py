@@ -19,17 +19,23 @@ def combine_snippets():
     """
 
     # Find the number of snippets at T.
-    original_snippets = len(trackers.snippets)
+    original_snippets = sorted(trackers.snippets.keys())
     
     # Perform first pass of concatenation.
-    updated_snippets = concatenate()
+    concatenate()
 
+    # Delete obsolete snippets.
+    remove_old_snippets()
+    
+    # Get new snippets list.
+    updated_snippets = sorted(trackers.snippets.keys())
+    
     # Initialise counter for concatenation interations.
     no_passes = 1
 
     if not params['SILENT']:
-        print(no_passes, "pass  \tOriginal:", original_snippets,
-              "\tNew:", updated_snippets)
+        print("1 pass  \tOriginal:", len(original_snippets),
+              "\tNew:", len(updated_snippets), "\tDeleted:", len(trackers.deleted_snippets))
 
     while updated_snippets != original_snippets:
         # Keep concatenating snippets until no more concatenations can be made.
@@ -38,7 +44,13 @@ def combine_snippets():
         pre_updated_snippets = copy(updated_snippets)
         
         # Perform concatenation.
-        updated_snippets = concatenate()
+        concatenate()
+
+        # Delete obsolete snippets.
+        remove_old_snippets()
+
+        # Get new snippets list.
+        updated_snippets = sorted(trackers.snippets.keys())
 
         # Set new T as old T+1
         original_snippets = pre_updated_snippets
@@ -48,7 +60,7 @@ def combine_snippets():
 
         if not params['SILENT']:
             print(no_passes, "passes\tOriginal:",
-                  original_snippets, "\tNew:", updated_snippets)
+                  len(original_snippets), "\tNew:", len(updated_snippets), "\tDeleted:", len(trackers.deleted_snippets))
 
 
 def concatenate():
@@ -90,7 +102,7 @@ def concatenate():
                     # snippet already exists.
 
                     # Child is current snippet.
-                    child = [[None, trackers.snippets[snippet]]]
+                    child = [[snippet, trackers.snippets[snippet]]]
                     
                     generate_key_and_check(start, end, concat, child)
 
@@ -464,8 +476,6 @@ def concatenate():
                         # Check whether a concatenation can be performed.
                         check_concatenations(alt_cs, pre, aft, 0, children)
 
-    return len(trackers.snippets)
-
 
 def generate_key_and_check(pre, aft, concat, children):
     """
@@ -491,7 +501,7 @@ def generate_key_and_check(pre, aft, concat, children):
     # Generate key for proposed concatenation
     new_key = " ".join([str([pre, aft]), concat[1]])
 
-    if new_key in trackers.snippets:
+    if new_key in trackers.snippets or new_key in trackers.deleted_snippets:
         # No need to concatenate as a perfectly good
         # solution already exists.
         pass
@@ -499,7 +509,7 @@ def generate_key_and_check(pre, aft, concat, children):
     else:
 
         # Create list of children.
-        children = [i[1] for i in children]
+        children = [i[1].__copy__() for i in children]
 
         # We can generate a new snippet by concatenating
         # two existing snippets.
@@ -516,18 +526,33 @@ def remove_old_snippets():
 
     for snippet in sorted(trackers.snippets.keys()):
         # Iterate over all snippets.
+        
+        if snippet in trackers.snippets:
+            delete_snippet(trackers.snippets[snippet])
 
-        # Get indices of snippet location on target string.
-        indices = get_num_from_str(snippet)
 
-        encompassing_snippets = [snip for snip in sorted(
-            trackers.snippets.keys()) if get_num_from_str(snip)[0] <
-                                 indices[0] and get_num_from_str(snip)[1] >
-                                 indices[1]]
+def delete_snippet(self):
+    """
+    Given a tree structure, dive down through the tree recursively and delete
+    all child snippets.
+    
+    :param self: A parse tree.
+    :return: Nothing.
+    """
+    
+    if self.parent and self.snippet and self.snippet in trackers.snippets and \
+        len(params['BNF_GRAMMAR'].concat_NTs[self.root]) == 1:
+        # Delete this snippet as it's (hopefully) useless now.
 
-        for snip in encompassing_snippets:
-            del trackers.snippets[snip]
-
+        del trackers.snippets[self.snippet]
+        trackers.deleted_snippets.append(self.snippet)
+            
+    if self.children:
+        # Recruse through all children.
+        
+        for child in self.children:
+            delete_snippet(child)
+            
 
 def create_snippet(parent, children, choice, key):
     """
@@ -544,9 +569,12 @@ def create_snippet(parent, children, choice, key):
 
     # Initialise new instance of the tree class to act as new snippet.
     new_tree = tree.Tree(parent, None)
-
+    
     # Generate a codon to match the given production choice.
     new_tree.codon = generate_codon(parent, choice)
+    
+    # Save the snippet key of this tree.
+    new_tree.snippet = key
 
     # Add the children to the new node
     for child in children:

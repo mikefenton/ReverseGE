@@ -29,6 +29,7 @@ class Grammar(object):
         # Initialise dicts for rules, terminals and non terminals.
         self.non_terminals, self.terminals, self.concat_NTs = {}, {}, {}
         self.rules, self.climb_NTs, self.start_rule = {}, {}, None
+        self.delete_NTs = {}
 
         # Set regular expressions for parsing BNF grammar.
         self.ruleregex = '(?P<rulename><\S+>)\s*::=\s*(?P<production>(?:(?=\#)\#[^\r\n]*|(?!<\S+>\s*::=).+?)+)'
@@ -230,6 +231,9 @@ class Grammar(object):
             # Find rules which have production choices leading to NTs.
             concat = [choice for choice in self.rules[rule]['choices'] if
                       choice['NT_kids']]
+            
+            delete_NTs = [choice for choice in self.rules[rule]['choices'] if
+                          choice['NT_kids']]
             
             if concat:
                 # We can concatenate NTs.

@@ -9,7 +9,7 @@ params = {
 
         # Specify target for target problems.
         'TARGET': "Hello world!",
-    
+
         # Prevent output from being printed.
         'SILENT': False
 
