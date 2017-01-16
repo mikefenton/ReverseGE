@@ -32,8 +32,8 @@ by typing:
     $ cd src
     $ python ReverseGE.py
 
-This will run an example problem which reverse engineers the following
-target string:
+This will run an example problem which parses the following target 
+string:
 
     Hello world!
 
