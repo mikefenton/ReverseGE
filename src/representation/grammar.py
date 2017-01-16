@@ -42,7 +42,7 @@ class Grammar(object):
         # Set boolean flag for which production choices contain non-terminals.
         self.set_NT_kids()
         
-        # Find production choices which can be used to concatenate_multi_NT
+        # Find production choices which can be used to concatenate
         # subtrees.
         self.find_concatination_NTs()
         
@@ -211,14 +211,14 @@ class Grammar(object):
     def find_concatination_NTs(self):
         """
         Scour the grammar class to find non-terminals which can be used to
-        combine/concatenate_multi_NT derivation trees. Build up a list of such
+        combine/concatenate derivation trees. Build up a list of such
         non-terminals. A concatenation non-terminal is one in which at least
         one production choice contains multiple non-terminals. For example:
 
             <e> ::= (<e><o><e>)|<v>
 
         is a concatenation NT, since the production choice (<e><o><e>) can
-        concatenate_multi_NT multiple NTs together. Note that this choice also includes
+        concatenate multiple NTs together. Note that this choice also includes
         a combination of terminals and non-terminals.
 
         :return: Nothing.
@@ -227,56 +227,30 @@ class Grammar(object):
         # Iterate over all non-terminals/production rules.
         for rule in sorted(self.rules.keys()):
             
-            # Find NTs which have production choices which can concatenate_multi_NT
-            # two NTs.
-            multi_concat = [choice for choice in self.rules[rule]['choices'] if
-                            choice['NT_kids'] and len([sym for sym in choice[
-                            'choice'] if sym['type'] == "NT"]) > 1]
+            # Find rules which have production choices leading to NTs.
+            concat = [choice for choice in self.rules[rule]['choices'] if
+                      choice['NT_kids']]
             
-            single_concat = [choice for choice in self.rules[rule]['choices'] if
-                             choice['NT_kids'] and len([sym for sym in choice[
-                            'choice'] if sym['type'] == "NT"]) == 1]
-            
-            if multi_concat:
-                # We can concatenate_multi_NT NTs.
-                for choice in multi_concat:
-                                        
-                    symbols = [sym['symbol'] for sym in choice['choice'] if
-                               sym['type'] == "NT"]
-
-                    for sym in symbols:
+            if concat:
+                # We can concatenate NTs.
+                for choice in concat:
+    
+                    symbols = [[sym['symbol'], sym['type']] for sym in
+                               choice['choice']]
+                    
+                    NTs = [sym['symbol'] for sym in choice['choice'] if
+                           sym['type'] == "NT"]
+                    
+                    for NT in NTs:
                         # We add to our self.concat_NTs dictionary. The key is
-                        # the root node we want to concatenate_multi_NT with another
+                        # the root node we want to concatenate with another
                         # node. This way when we have a node and wish to see
-                        # if we can concatenate_multi_NT it with anything else, we
+                        # if we can concatenate it with anything else, we
                         # simply look up this dictionary.
-                        conc = [choice['choice'], rule, [[sym['symbol'],
-                                                          sym['type']] for sym
-                                                         in choice['choice']]]
+                        conc = [choice['choice'], rule, symbols]
                                                 
-                        if sym not in self.concat_NTs:
-                            self.concat_NTs[sym] = [conc]
+                        if NT not in self.concat_NTs:
+                            self.concat_NTs[NT] = [conc]
                         else:
-                            if conc not in self.concat_NTs[sym]:
-                                self.concat_NTs[sym].append(conc)
-
-            if single_concat:
-                # We can use these choices to generate parents for single NTs.
-                for choice in single_concat:
-                    
-                    symbols = [sym['symbol'] for sym in choice['choice']]
-                    
-                    NT = [sym['symbol'] for sym in choice['choice'] if
-                          sym['type'] == "NT"][0]
-
-                    # We add to our self.climb_NTs dictionary. The key is the
-                    # root node we want to find a parent for. This way when we
-                    # have a node and wish to see if we can find a parent
-                    # for it, we simply look up this dictionary.
-                    cl = [choice['choice'], rule, symbols]
-                    
-                    if NT not in self.climb_NTs:
-                        self.climb_NTs[NT] = [cl]
-                    else:
-                        if cl not in self.climb_NTs[NT]:
-                            self.climb_NTs[NT].append(cl)
+                            if conc not in self.concat_NTs[NT]:
+                                self.concat_NTs[NT].append(conc)

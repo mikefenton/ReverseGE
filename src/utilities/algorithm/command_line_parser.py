@@ -47,6 +47,12 @@ def parse_cmd_args(arguments):
     # TARGET
     parser.add_argument('--target', dest='TARGET', type=str,
                         help='Target string to reverse-engineer.')
+
+    # PRINTING
+    parser.add_argument('--silent', dest='SILENT', default=None,
+                        action='store_true',
+                        help='Prevents any output from being printed to the '
+                             'command line.')
     
     # Parse command line arguments using all above information.
     args, unknown = parser.parse_known_args(arguments)

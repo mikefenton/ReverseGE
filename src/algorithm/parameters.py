@@ -4,11 +4,14 @@ from os import path
 """Algorithm parameters"""
 params = {
 
-        # Set grammar file
+        # Set grammar file.
         'GRAMMAR_FILE': "letter.bnf",
 
-        # Specify target for target problems
-        'TARGET': "Hello world!"
+        # Specify target for target problems.
+        'TARGET': "Hello world!",
+    
+        # Prevent output from being printed.
+        'SILENT': False
 
 }
 

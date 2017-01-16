@@ -3,6 +3,7 @@ from utilities.algorithm.initialise_run import check_python_version
 check_python_version()
 
 from copy import copy
+from datetime import datetime
 import sys
 
 from algorithm.parameters import params, set_params
@@ -10,7 +11,7 @@ from operators.semantic_swap import combine_snippets, \
     check_snippets_for_solution
 from representation.tree import Tree
 from utilities.representation.check_methods import generate_codon, \
-    check_ind, get_output
+    check_ind
 from utilities.stats import trackers
 
 
@@ -23,7 +24,8 @@ def assemble_solution():
     """
     
     target = copy(params['TARGET'])
-    print("Target:", target)
+    if not params['SILENT']:
+        print("Target:", target)
     terms = params['BNF_GRAMMAR'].terminals
     rules = params['BNF_GRAMMAR'].rules
 
@@ -79,7 +81,8 @@ def assemble_solution():
                     # Add snippet to snippets repository.
                     trackers.snippets[key] = parent
 
-    print("\nStarting with", len(trackers.snippets), "snippets.\n")
+    if not params['SILENT']:
+        print("\nStarting with", len(trackers.snippets), "snippets.\n")
 
     # Combine snippets to make bigger snippets. Quickly builds up the
     # perfect solution.
@@ -97,8 +100,13 @@ def assemble_solution():
 
 
 if __name__ == '__main__':
+    t1 = datetime.now()
     set_params(sys.argv)
     solution = assemble_solution()
     check_ind(solution, params['TARGET'])
     print("\nGenome:")
     print(solution.genome)
+    t2 = datetime.now()
+    time_taken = t2 - t1
+    if not params['SILENT']:
+        print("\nTotal time taken:", time_taken)

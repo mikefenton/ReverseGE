@@ -2,14 +2,9 @@
 #Introduction
 ------------
 
-ReverseGE allows you to reverse-engineer a target string. Given a 
-grammar which can generate the target string, ReverseGE will output a 
-genome which will map to that same target string using that grammar. 
-While the process is deterministic, and as such will produce the same
-derivation tree structure, codons in the genome are randomly chosen from
-within a specified range. This means that multiple genomes will map to
-the same solution (i.e. running ReverseGE multiple times will result in 
-multiple different genomes, all of which map to the same solution tree).
+ReverseGE is a GE-specific parser. Given a target string and a grammar 
+which can generate the target string, ReverseGE will output a genome 
+which will map to that same target string using that same grammar. 
 
 ReverseGE is based on PonyGE (https://github.com/jmmcd/ponyge2), and as 
 such genomes produced by ReverseGE can be used to seed solutions in 
