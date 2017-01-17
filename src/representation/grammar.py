@@ -43,7 +43,7 @@ class Grammar(object):
         # Set boolean flag for which production choices contain non-terminals.
         self.set_NT_kids()
         
-        # Find production choices which can be used to concatenate
+        # Find production choices which can be used to reduce_trees
         # subtrees.
         self.find_concatination_NTs()
         
@@ -212,14 +212,14 @@ class Grammar(object):
     def find_concatination_NTs(self):
         """
         Scour the grammar class to find non-terminals which can be used to
-        combine/concatenate derivation trees. Build up a list of such
+        combine/reduce_trees derivation trees. Build up a list of such
         non-terminals. A concatenation non-terminal is one in which at least
         one production choice contains multiple non-terminals. For example:
 
             <e> ::= (<e><o><e>)|<v>
 
         is a concatenation NT, since the production choice (<e><o><e>) can
-        concatenate multiple NTs together. Note that this choice also includes
+        reduce_trees multiple NTs together. Note that this choice also includes
         a combination of terminals and non-terminals.
 
         :return: Nothing.
@@ -236,7 +236,7 @@ class Grammar(object):
                           choice['NT_kids']]
             
             if concat:
-                # We can concatenate NTs.
+                # We can reduce_trees NTs.
                 for choice in concat:
     
                     symbols = [[sym['symbol'], sym['type']] for sym in
@@ -247,9 +247,9 @@ class Grammar(object):
                     
                     for NT in NTs:
                         # We add to our self.concat_NTs dictionary. The key is
-                        # the root node we want to concatenate with another
+                        # the root node we want to reduce_trees with another
                         # node. This way when we have a node and wish to see
-                        # if we can concatenate it with anything else, we
+                        # if we can reduce_trees it with anything else, we
                         # simply look up this dictionary.
                         conc = [choice['choice'], rule, symbols]
                                                 

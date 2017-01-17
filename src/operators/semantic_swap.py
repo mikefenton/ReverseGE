@@ -21,8 +21,8 @@ def combine_snippets():
     # Find the number of snippets at T.
     original_snippets = sorted(trackers.snippets.keys())
     
-    # Perform first pass of concatenation.
-    concatenate()
+    # Perform first pass of reduction.
+    reduce_trees()
 
     # Delete obsolete snippets.
     remove_old_snippets()
@@ -30,7 +30,7 @@ def combine_snippets():
     # Get new snippets list.
     updated_snippets = sorted(trackers.snippets.keys())
     
-    # Initialise counter for concatenation interations.
+    # Initialise counter for reduction interations.
     no_passes = 1
 
     if not params['SILENT']:
@@ -38,13 +38,13 @@ def combine_snippets():
               "\tNew:", len(updated_snippets), "\tDeleted:", len(trackers.deleted_snippets))
 
     while updated_snippets != original_snippets:
-        # Keep concatenating snippets until no more concatenations can be made.
+        # Keep reducing snippets until no more reductions can be made.
 
         # Save old T+1
         pre_updated_snippets = copy(updated_snippets)
         
-        # Perform concatenation.
-        concatenate()
+        # Perform reduction.
+        reduce_trees()
 
         # Delete obsolete snippets.
         remove_old_snippets()
@@ -60,42 +60,50 @@ def combine_snippets():
 
         if not params['SILENT']:
             print(no_passes, "passes\tOriginal:",
-                  len(original_snippets), "\tNew:", len(updated_snippets), "\tDeleted:", len(trackers.deleted_snippets))
+                  len(original_snippets), "\tNew:", len(updated_snippets),
+                  "\tDeleted:", len(trackers.deleted_snippets))
 
 
-def concatenate():
+def reduce_trees():
     """
-    Iterates through all snippets in the snippets dictionary and
-    concatenates snippets to make larger snippets.
+    Iterates through all snippets in the snippets dictionary and reduces
+    snippets to make larger snippets.
 
     :return: Nothing.
     """
 
-    concats = params['BNF_GRAMMAR'].concat_NTs
+    # Get list of all reduction NTs.
+    reduce_NTs = params['BNF_GRAMMAR'].concat_NTs
 
     # Sort snippets keys.
-    sorted_keys = sorted(trackers.snippets.keys())
+    sorted_keys = sorted([[get_num_from_str(snippet),
+                           get_NT_from_str(snippet),
+                           snippet] for snippet in trackers.snippets.keys()])
 
     # Iterate over all snippets.
-    for snippet in sorted_keys:
+    for snippet_info in sorted_keys:
+        # print(snippet_info)
+        
+        # Get current snippet.
+        snippet = snippet_info[2]
 
         # Find current snippet info.
-        NT = get_NT_from_str(snippet)
+        NT = snippet_info[1]
 
         # Get indexes of the current snippet
-        indexes = get_num_from_str(snippet)
+        indexes = snippet_info[0]
         start, end = indexes[0], indexes[1]
 
         # Find if the snippet root (NT) exists anywhere in the
-        # concatenation NTs.
-        if NT in concats:
+        # reduction NTs.
+        if NT in reduce_NTs:
 
-            for concat in concats[NT]:
+            for reduce in reduce_NTs[NT]:
                 # Now we're searching for a specific subset of keys in the
                 # snippets dictionary.
 
                 # Generate list of only the desired Non Terminals.
-                NTs = concat[2]
+                NTs = reduce[2]
 
                 if len(NTs) == 1:
                     # This choice leads directly to the parent, check if parent
@@ -104,62 +112,62 @@ def concatenate():
                     # Child is current snippet.
                     child = [[snippet, trackers.snippets[snippet]]]
                     
-                    generate_key_and_check(start, end, concat, child)
+                    generate_key_and_check(start, end, reduce, child)
 
                 else:
                     # Find the index of the snippet root in the current
-                    # concatenation production choice.
+                    # reduction production choice.
                     NT_locs = [i for i, x in enumerate(NTs) if x[0] == NT]
 
                     for loc in NT_locs:
-                        # We want to check each possible concatenation option.
+                        # We want to check each possible reduction option.
                         # if speck:
     
                         # Set where the original snippet starts and ends on
                         # the target string.
                         if loc == 0:
                             # The current snippet is at the start of the
-                            # concatenation attempt.
+                            # reduction attempt.
                             aft, pre = end, None
     
                         elif start == 0 and loc != 0:
                             # The current snippet is at the start of the target
-                            # string, but we are trying to concatenate it with
+                            # string, but we are trying to reduce_trees it with
                             # something before it.
                             break
     
                         elif end == len(params['TARGET']) and loc != \
                                 NT_locs[-1]:
                             # The current snippet is at the end of the target
-                            # string, but we are trying to concatenate it with
+                            # string, but we are trying to reduce_trees it with
                             # something after it.
                             break
     
                         elif loc == len(NTs):
                             # The current snippet is at the end of the
-                            # concatenation attempt.
+                            # reduction attempt.
                             aft, pre = None, start
     
                         else:
                             # The current snippet is in the middle of the
-                            # concatenation attempt.
+                            # reduction attempt.
                             aft, pre = end, start
     
                         alt_cs = list(range(len(NTs)))
     
-                        # Initialise a list of children to be concatenated.
+                        # Initialise a list of children to be reduced.
                         children = [[] for _ in range(len(NTs))]
     
                         # Set original snippet into children.
                         children[loc] = [snippet, trackers.snippets[snippet]]
     
                         # Generate ordered list of alternating indexes of Ts
-                        # and NTs to concatenate with a given original NT.
+                        # and NTs to reduce_trees with a given original NT.
                         b = zip_longest(alt_cs[loc:], reversed(alt_cs[:loc]))
                         alt_cs = [x for x in list(sum(b, ())) if x is not None]
                         alt_cs.remove(loc)
     
-                        def check_concatenations(alt_cs, pre, aft, idx, children):
+                        def check_reductions(alt_cs, pre, aft, idx, children):
                             """
                             Given a list of the indexes of potential children, find
                             snippets which match adjacent portions of the target
@@ -167,12 +175,12 @@ def concatenate():
     
                             :param alt_cs: An ordered list of indexes of
                             potential Terminals or Non Terminals to
-                            concatenate.
+                            reduce_trees.
                             :param pre: The start index of the overall snippet
                             on the target string.
                             :param aft: The end index of the overall snippet on
                             the target string.
-                            :param children: A list of children to be concatenated.
+                            :param children: A list of children to be reduced.
                             :param idx: The index of the current child.
                             :return: The same inputs, in the same order.
                             """
@@ -193,7 +201,7 @@ def concatenate():
     
                                     if child[1] == "T":
                                         # Then we can immediately check if this
-                                        # concatenation T is legally allowed
+                                        # reduction T is legally allowed
                                         # follow the current NT in the target
                                         # string.
     
@@ -224,24 +232,20 @@ def concatenate():
                                             if alt_cs:
                                                 # Recurse to find the next piece of
                                                 # the puzzle.
-                                                check_concatenations(alt_cs, pre,
+                                                check_reductions(alt_cs, pre,
                                                                      aft, idx,
                                                                      children)
     
                                     elif child[1] == "NT":
                                         # Check to see if there are any snippets
-                                        # which can be concatenated to the current
+                                        # which can be reduced to the current
                                         # block.
-    
-                                        # This NT comes after the original NT.
-                                        str_aft = str(aft)
-    
+        
                                         # Find all potential snippets which
                                         # match our criteria.
                                         matches = [v for v in sorted_keys if
-                                                   v.split()[0][1:-1] ==
-                                                   str_aft and v.split()[2] ==
-                                                   child[0]]
+                                                   v[0][0] == aft and
+                                                   v[1] == child[0]]
     
                                         # Create a copy of this marker otherwise
                                         # each match will over-write it.
@@ -249,25 +253,25 @@ def concatenate():
     
                                         for match in matches:
                                             # Iterate over all potential matches.
-    
+
                                             # Calculate length of match string.
-                                            str_len = get_num_from_str(match)
+                                            str_len = match[0]
     
                                             # Increment appropriate phenotype
                                             # counter.
                                             aft_c = aft + str_len[1] - str_len[0]
     
                                             # Add to children.
-                                            children[child_idx] = [match,
+                                            children[child_idx] = [match[2],
                                                               trackers.snippets[
-                                                                  match]]
+                                                                  match[2]]]
     
                                             if alt_cs:
                                                 # Recurse to find the next piece of
                                                 # the puzzle.
-                                                check_concatenations(alt_cs, pre,
-                                                                     aft_c, idx,
-                                                                     children)
+                                                check_reductions(alt_cs, pre,
+                                                                 aft_c, idx,
+                                                                 children)
     
                                 elif aft is None:
                                     # Then we are starting with an NT which
@@ -275,7 +279,7 @@ def concatenate():
     
                                     if child[1] == "T":
                                         # Then we can immediately check if this
-                                        # concatenation T is legally allowed
+                                        # reduction T is legally allowed
                                         # follow the current NT in the target
                                         # string.
     
@@ -307,24 +311,20 @@ def concatenate():
                                             if alt_cs:
                                                 # Recurse to find the next piece of
                                                 # the puzzle.
-                                                check_concatenations(alt_cs, pre,
+                                                check_reductions(alt_cs, pre,
                                                                      aft, idx,
                                                                      children)
     
                                     elif child[1] == "NT":
                                         # Check to see if there are any snippets
-                                        # which can be concatenated to the current
+                                        # which can be reduced to the current
                                         # block.
-    
-                                        # This NT comes after the original NT.
-                                        str_pre = str(pre)
     
                                         # Find all potential snippets which
                                         # match our criteria.
                                         matches = [v for v in sorted_keys if
-                                                   v.split()[1][:-1] ==
-                                                   str_pre and v.split()[2] ==
-                                                   child[0]]
+                                                   v[0][1] == pre and
+                                                   v[1] == child[0]]
     
                                         # Create a copy of this marker otherwise
                                         # each match will over-write it.
@@ -332,33 +332,33 @@ def concatenate():
     
                                         for match in matches:
                                             # Iterate over all potential matches.
-    
+
                                             # Calculate length of match string.
-                                            str_len = get_num_from_str(match)
+                                            str_len = match[0]
     
                                             # Increment appropriate phenotype
                                             # counter.
                                             pre_c = pre - str_len[1] + str_len[0]
     
                                             # Add to children.
-                                            children[child_idx] = [match,
+                                            children[child_idx] = [match[2],
                                                               trackers.snippets[
-                                                                  match]]
+                                                                  match[2]]]
     
                                             if alt_cs:
                                                 # Recurse to find the next piece of
                                                 # the puzzle.
-                                                check_concatenations(alt_cs, pre_c,
-                                                                     aft, idx,
-                                                                     children)
+                                                check_reductions(alt_cs, pre_c,
+                                                                 aft, idx,
+                                                                 children)
     
                                 else:
                                     # Our starting NT is somewhere in the middle
-                                    # of the proposed concatenation.
+                                    # of the proposed reduction.
     
                                     if child[1] == "T":
                                         # Then we can immediately check if this
-                                        # concatenation T is legally allowed be
+                                        # reduction T is legally allowed be
                                         # where it wants to be.
     
                                         # Get output to check for match.
@@ -406,31 +406,27 @@ def concatenate():
                                             if alt_cs:
                                                 # Recurse to find the next piece of
                                                 # the puzzle.
-                                                check_concatenations(alt_cs, pre,
+                                                check_reductions(alt_cs, pre,
                                                                      aft, idx,
                                                                      children)
     
                                     elif child[1] == "NT":
                                         # Check to see if there are any snippets
-                                        # which can be concatenated to the current
+                                        # which can be reduced to the current
                                         # block.
-    
+
                                         # Get portion of target string to match.
                                         if child_idx > loc:
                                             # This NT comes after the original NT.
-                                            str_aft = str(aft)
                                             matches = [v for v in sorted_keys if
-                                                       v.split()[0][1:-1] ==
-                                                       str_aft and v.split()[2] ==
-                                                       child[0]]
+                                                       v[0][0] == aft and
+                                                       v[1] == child[0]]
     
                                         else:
                                             # This NT comes before the original NT.
-                                            str_pre = str(pre)
                                             matches = [v for v in sorted_keys if
-                                                       v.split()[1][:-1] ==
-                                                       str_pre and v.split()[2] ==
-                                                       child[0]]
+                                                       v[0][1] == pre and
+                                                       v[1] == child[0]]
     
                                         # Create copies of this markers otherwise
                                         # each match will over-write them.
@@ -438,9 +434,9 @@ def concatenate():
     
                                         for match in matches:
                                             # Iterate over all potential matches.
-    
+
                                             # Calculate length of match string.
-                                            str_len = get_num_from_str(match)
+                                            str_len = match[0]
     
                                             # Increment appropriate phenotype
                                             # counter.
@@ -455,40 +451,40 @@ def concatenate():
                                                 pre_c = pre - str_len[1] + str_len[0]
     
                                             # Add to children.
-                                            children[child_idx] = [match,
+                                            children[child_idx] = [match[2],
                                                               trackers.snippets[
-                                                                  match]]
+                                                                  match[2]]]
     
                                             if alt_cs:
                                                 # Recurse to find the next piece of
                                                 # the puzzle.
-                                                check_concatenations(alt_cs, pre_c,
+                                                check_reductions(alt_cs, pre_c,
                                                                      aft_c, idx,
                                                                      children)
     
                             elif all([i != [] for i in children]):
                                 # We have compiled a full set of potneital
-                                # children to concatenate. Generate a key and check
+                                # children to reduce_trees. Generate a key and check
                                 # if it exists.
-                                generate_key_and_check(pre, aft, concat,
+                                generate_key_and_check(pre, aft, reduce,
                                                        children)
     
-                        # Check whether a concatenation can be performed.
-                        check_concatenations(alt_cs, pre, aft, 0, children)
+                        # Check whether a reduction can be performed.
+                        check_reductions(alt_cs, pre, aft, 0, children)
 
 
-def generate_key_and_check(pre, aft, concat, children):
+def generate_key_and_check(pre, aft, reduce, children):
     """
     Will generate a snippet key and check if it exists in the repository. If
     snippet is not in the repository, adds it.
 
     :param pre: The start index of the overall snippet on the target string.
     :param aft: The end index of the overall snippet on the target string.
-    :param concat: The information necessary to concatenate a list of snippets.
-    Includes the root NT that will form the new root node of the concatenated
+    :param reduce: The information necessary to reduce_trees a list of snippets.
+    Includes the root NT that will form the new root node of the reduced
     snippet.
     :param children: A dictionary containing the derivation trees of all
-    components of the snippet to be concatenated.
+    components of the snippet to be reduced.
     :return: Nothing.
     """
 
@@ -498,11 +494,11 @@ def generate_key_and_check(pre, aft, concat, children):
     if aft is None:
         aft = get_num_from_str(children[-1][0])[1]
 
-    # Generate key for proposed concatenation
-    new_key = " ".join([str([pre, aft]), concat[1]])
+    # Generate key for proposed reduction
+    new_key = " ".join([str([pre, aft]), reduce[1]])
 
     if new_key in trackers.snippets or new_key in trackers.deleted_snippets:
-        # No need to concatenate as a perfectly good
+        # No need to reduce_trees as a perfectly good
         # solution already exists.
         pass
 
@@ -511,9 +507,9 @@ def generate_key_and_check(pre, aft, concat, children):
         # Create list of children.
         children = [i[1].__copy__() for i in children]
 
-        # We can generate a new snippet by concatenating
+        # We can generate a new snippet by reducing
         # two existing snippets.
-        create_snippet(concat[1], children, concat[0], new_key)
+        create_snippet(reduce[1], children, reduce[0], new_key)
 
 
 def remove_old_snippets():
