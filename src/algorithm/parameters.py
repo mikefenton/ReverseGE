@@ -5,10 +5,10 @@ from os import path
 params = {
 
         # Set grammar file.
-        'GRAMMAR_FILE': "regex.bnf",
+        'GRAMMAR_FILE': "letter.bnf",
 
         # Specify target for target problems.
-        'TARGET': "^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$",
+        'TARGET': "Hello world!",
 
         # Prevent output from being printed.
         'SILENT': False
