@@ -1,4 +1,4 @@
-<string> ::= <letter>|<letter><string>
+<string> ::= <letter>|<string><letter>
 
 <letter> ::= <lower_vowel>|<upper_vowel>|<lower_consonant>|<upper_consonant>|<symbols>
 

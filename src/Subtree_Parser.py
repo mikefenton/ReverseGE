@@ -2,12 +2,11 @@ from utilities.algorithm.initialise_run import check_python_version
 
 check_python_version()
 
-from copy import copy
 from datetime import datetime
 import sys
 
 from algorithm.parameters import params, set_params
-from operators.semantic_swap import combine_snippets, \
+from operators.subtree_parse import combine_snippets, \
     check_snippets_for_solution
 from representation.tree import Tree
 from utilities.representation.check_methods import generate_codon, \
@@ -15,7 +14,7 @@ from utilities.representation.check_methods import generate_codon, \
 from utilities.stats import trackers
 
 
-def assemble_solution():
+def assemble_solution(target):
     """
     Given a target string, build up a simple repository of snippets of
     terminals which match certain portions of the target string.
@@ -23,7 +22,6 @@ def assemble_solution():
     :return: A complete solution in the form of an individual.
     """
     
-    target = copy(params['TARGET'])
     if not params['SILENT']:
         print("Target:", target)
     terms = params['BNF_GRAMMAR'].terminals
@@ -98,14 +96,14 @@ def assemble_solution():
         return solution
 
     else:
-        print("Error: Solution not found.")
+        print("Error: Target string couldn't be parsed using given grammar.")
         quit()
 
 
 if __name__ == '__main__':
     t1 = datetime.now()
     set_params(sys.argv)
-    solution = assemble_solution()
+    solution = assemble_solution(params['TARGET'])
     check_ind(solution, params['TARGET'])
     print("\nGenome:")
     print(solution.genome)

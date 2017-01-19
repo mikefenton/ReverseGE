@@ -503,13 +503,14 @@ def generate_key_and_check(pre, aft, reduce, children):
         pass
 
     else:
-
         # Create list of children.
         children = [i[1].__copy__() for i in children]
 
         # We can generate a new snippet by reducing
         # two existing snippets.
         create_snippet(reduce[1], children, reduce[0], new_key)
+     
+    return new_key, pre, aft
 
 
 def remove_old_snippets():
@@ -568,10 +569,10 @@ def create_snippet(parent, children, choice, key):
     
     # Generate a codon to match the given production choice.
     new_tree.codon = generate_codon(parent, choice)
-    
+
     # Save the snippet key of this tree.
     new_tree.snippet = key
-
+    
     # Add the children to the new node
     for child in children:
         new_tree.children.append(child)

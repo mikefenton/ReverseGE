@@ -11,7 +11,7 @@ def check_ind(ind, target):
     the individual.
     :return: Nothing.
     """
-    
+        
     # Re-map individual using genome mapper to check everything is ok.
     new_ind = individual.Individual(ind.genome, None)
 
