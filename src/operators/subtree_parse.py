@@ -504,7 +504,7 @@ def generate_key_and_check(pre, aft, reduce, children):
 
     else:
         # Create list of children.
-        children = [i[1].__copy__() for i in children]
+        children = [i[1] for i in children]
 
         # We can generate a new snippet by reducing
         # two existing snippets.
